@@ -1,9 +1,11 @@
 import requests
 import random
 
+BASE_URL_API = "https://pokeapi.co/api/v2/"
+
 # URL de l'API Pokémon pour récupérer les données de base des pokémons et des types
-URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
-URL_TYPE_API = "https://pokeapi.co/api/v2/type"
+URL_POKEMON_API_BASE = "%spokemon" % BASE_URL_API
+URL_TYPE_API = "%stype" % BASE_URL_API
 NB_PARTICIPANTS = 32
 
 
