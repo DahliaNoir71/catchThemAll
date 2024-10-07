@@ -4,13 +4,7 @@ import random
 URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
 NB_PARTICIPANTS = 16
 
-
 def get_pokemons_count():
-    """
-    Fetches the total count of Pokémon from the Pokémon API.
-
-    :return: The total count of Pokémon if the request is successful; otherwise, returns 0.
-    """
     try:
         response = requests.get(URL_POKEMON_API_BASE)
         response.raise_for_status()
@@ -20,20 +14,10 @@ def get_pokemons_count():
         print("Erreur lors de la requête pour récupération du nombre total de pokémons")
         return 0
 
-
 def get_random_pokemon_id(pokemons_count):
-    """
-    :param pokemons_count: The total number of available Pokemon.
-    :return: A random Pokemon ID between 1 and the total count.
-    """
     return random.randint(1, pokemons_count)
 
-
 def fetch_pokemon_data(pokemon_id):
-    """
-    :param pokemon_id: Identification number of the Pokémon to fetch data for
-    :return: JSON response containing Pokémon data or None if an error occurs
-    """
     try:
         url_pokemon = f"{URL_POKEMON_API_BASE}/{pokemon_id}"
         response = requests.get(url_pokemon)
@@ -43,11 +27,7 @@ def fetch_pokemon_data(pokemon_id):
         print(f"Pas de pokémon avec l'ID : {pokemon_id}")
         return None
 
-
 def get_random_pokemons():
-    """
-    :return: A list of random, unique Pokémon data dictionaries. The number of Pokémon returned is determined by the constant NB_PARTICIPANTS. Each Pokémon data dictionary contains information about the Pokémon fetched using its ID.
-    """
     pokemons = []
     pokemons_count = get_pokemons_count()
     while len(pokemons) < NB_PARTICIPANTS:
@@ -57,34 +37,49 @@ def get_random_pokemons():
             pokemons.append(pokemon_data)
     return pokemons
 
+def calculate_pokemon_strength(pokemon):
+    # On calcule la force d'un pokémon comme la somme de ses statistiques de base
+    stats = pokemon['stats']
+    total_strength = sum(stat['base_stat'] for stat in stats)
+    return total_strength
 
-def print_pokemon_info(pokemon):
-    """
-    :param pokemon: A dictionary containing information about a Pokémon, including its name, type(s), height, weight, stats, and abilities.
-    :return: None
-    """
-    print(f"{pokemon['name']}")
-    print(f"   - Type(s) : {[t['type']['name'] for t in pokemon['types']]}")
-    print(f"   - Taille : {pokemon['height']}")
-    print(f"   - Poids : {pokemon['weight']}")
-    print(f"   - Statistiques :")
-    for stat in pokemon['stats']:
-        print(f"     * {stat['stat']['name']} : {stat['base_stat']}")
-    print(f"   - Capacités : {[ability['ability']['name'] for ability in pokemon['abilities']]}")
+def simulate_battle(pokemon1, pokemon2):
+    # On calcule la force de chaque pokémon
+    strength1 = calculate_pokemon_strength(pokemon1)
+    strength2 = calculate_pokemon_strength(pokemon2)
 
+    print(f"Combat entre {pokemon1['name']} et {pokemon2['name']} :")
+    print(f" - {pokemon1['name']} : Force totale = {strength1}")
+    print(f" - {pokemon2['name']} : Force totale = {strength2}")
+
+    # On compare les forces pour déterminer le vainqueur
+    if strength1 > strength2:
+        print(f" --> Vainqueur : {pokemon1['name']}\n")
+        return pokemon1
+    else:
+        print(f" --> Vainqueur : {pokemon2['name']}\n")
+        return pokemon2
+
+def simulate_first_round(pokemons):
+    # On simule les 8 premiers combats (16 pokémons)
+    winners = []
+    for i in range(0, NB_PARTICIPANTS, 2):
+        winner = simulate_battle(pokemons[i], pokemons[i + 1])
+        winners.append(winner)
+    return winners
 
 def main():
-    """
-    Retrieves a list of random Pokémon and prints their information.
-
-    :return: None
-    """
     random_pokemons = get_random_pokemons()
     print("Les 16 Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
-        print(f"{i}. ", end="")
-        print_pokemon_info(pokemon)
-
+        print(f"{i}. {pokemon['name']}")
+    
+    print("\n--- Premier Tour ---\n")
+    winners = simulate_first_round(random_pokemons)
+    
+    print("Les 8 Pokémon qualifiés pour le tour suivant sont :")
+    for i, winner in enumerate(winners, start=1):
+        print(f"{i}. {winner['name']}")
 
 if __name__ == "__main__":
     main()
