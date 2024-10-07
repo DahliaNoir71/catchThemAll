@@ -2,7 +2,7 @@ import requests
 import random
 
 URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
-NB_PARTICIPANTS = 16
+NB_PARTICIPANTS = 32
 
 # Définition des avantages entre types de Pokémon
 type_advantages = {
