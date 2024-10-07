@@ -60,22 +60,21 @@ def simulate_battle(pokemon1, pokemon2):
         print(f" --> Vainqueur : {pokemon2['name']}\n")
         return pokemon2
 
-def simulate_first_round(pokemons):
-    # On simule les 8 premiers combats (16 pokémons)
-    winners = []
-    for i in range(0, NB_PARTICIPANTS, 2):
+def simulate_round(pokemons):
+    nb_participants = len(pokemons)
+    for i in range(0, nb_participants, 2):
         winner = simulate_battle(pokemons[i], pokemons[i + 1])
         winners.append(winner)
     return winners
 
 def main():
     random_pokemons = get_random_pokemons()
-    print("Les 16 Pokémon choisis aléatoirement sont :")
+    print(f"Les {NB_PARTICIPANTS} Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
         print(f"{i}. {pokemon['name']}")
     
     print("\n--- Premier Tour ---\n")
-    winners = simulate_first_round(random_pokemons)
+    winners = simulate_round(random_pokemons)
     
     print("Les 8 Pokémon qualifiés pour le tour suivant sont :")
     for i, winner in enumerate(winners, start=1):
