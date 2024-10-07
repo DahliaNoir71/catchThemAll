@@ -4,6 +4,28 @@ import random
 URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
 NB_PARTICIPANTS = 16
 
+# Définition des avantages entre types de Pokémon
+type_advantages = {
+    "normal": [],
+    "fire": ["grass", "bug", "ice", "steel"],
+    "water": ["fire", "ground", "rock"],
+    "electric": ["water", "flying"],
+    "grass": ["water", "ground", "rock"],
+    "ice": ["grass", "ground", "flying", "dragon"],
+    "fighting": ["normal", "rock", "steel", "ice", "dark"],
+    "poison": ["grass", "fairy"],
+    "ground": ["fire", "electric", "poison", "rock", "steel"],
+    "flying": ["grass", "fighting", "bug"],
+    "psychic": ["fighting", "poison"],
+    "bug": ["grass", "psychic", "dark"],
+    "rock": ["fire", "ice", "flying", "bug"],
+    "ghost": ["psychic", "ghost"],
+    "dragon": ["dragon"],
+    "dark": ["psychic", "ghost"],
+    "steel": ["rock", "ice", "fairy"],
+    "fairy": ["fighting", "dragon", "dark"]
+}
+
 def get_pokemons_count():
     try:
         response = requests.get(URL_POKEMON_API_BASE)
@@ -43,22 +65,46 @@ def calculate_pokemon_strength(pokemon):
     total_strength = sum(stat['base_stat'] for stat in stats)
     return total_strength
 
+def get_type_advantage_multiplier(pokemon1, pokemon2):
+    # On vérifie les avantages de type entre deux pokémons
+    types1 = [t['type']['name'] for t in pokemon1['types']]
+    types2 = [t['type']['name'] for t in pokemon2['types']]
+    multiplier = 1.0
+    for t1 in types1:
+        if t1 in type_advantages:
+            for t2 in types2:
+                if t2 in type_advantages[t1]:
+                    multiplier *= 1.5  # Avantage de type
+    return multiplier
+
 def simulate_battle(pokemon1, pokemon2):
     # On calcule la force de chaque pokémon
     strength1 = calculate_pokemon_strength(pokemon1)
     strength2 = calculate_pokemon_strength(pokemon2)
 
+    # On applique les avantages de type
+    multiplier1 = get_type_advantage_multiplier(pokemon1, pokemon2)
+    multiplier2 = get_type_advantage_multiplier(pokemon2, pokemon1)
+
+    adjusted_strength1 = strength1 * multiplier1
+    adjusted_strength2 = strength2 * multiplier2
+
     print(f"Combat entre {pokemon1['name']} et {pokemon2['name']} :")
-    print(f" - {pokemon1['name']} : Force totale = {strength1}")
-    print(f" - {pokemon2['name']} : Force totale = {strength2}")
+    print(f" - {pokemon1['name']} : Force totale = {strength1} (après avantage de type : {adjusted_strength1})")
+    print(f" - {pokemon2['name']} : Force totale = {strength2} (après avantage de type : {adjusted_strength2})")
 
     # On compare les forces pour déterminer le vainqueur
-    if strength1 > strength2:
+    if adjusted_strength1 > adjusted_strength2:
         print(f" --> Vainqueur : {pokemon1['name']}\n")
         return pokemon1
-    else:
+    elif adjusted_strength2 > adjusted_strength1:
         print(f" --> Vainqueur : {pokemon2['name']}\n")
         return pokemon2
+    else:
+        # En cas d'égalité parfaite, on choisit un vainqueur aléatoire
+        winner = random.choice([pokemon1, pokemon2])
+        print(f" --> Égalité parfaite, vainqueur aléatoire : {winner['name']}\n")
+        return winner
 
 def simulate_round(pokemons):
     # On simule un round de combats
@@ -70,7 +116,7 @@ def simulate_round(pokemons):
 
 def main():
     if NB_PARTICIPANTS < 2 or (NB_PARTICIPANTS & (NB_PARTICIPANTS - 1)) != 0:
-        print("Le nombre de participants doit être un multiple de 2 et supérieur ou égal à 2.")
+        print("Le nombre de participants doit être une puissance de 2 et supérieur ou égal à 2.")
         return
 
     random_pokemons = get_random_pokemons()
