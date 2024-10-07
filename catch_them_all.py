@@ -69,8 +69,12 @@ def simulate_round(pokemons):
     return winners
 
 def main():
+    if NB_PARTICIPANTS < 2 or (NB_PARTICIPANTS & (NB_PARTICIPANTS - 1)) != 0:
+        print("Le nombre de participants doit être un multiple de 2 et supérieur ou égal à 2.")
+        return
+
     random_pokemons = get_random_pokemons()
-    print(f"Les {NB_PARTICIPANTS} Pokémon choisis aléatoirement sont :")
+    print("Les 16 Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
         print(f"{i}. {pokemon['name']}")
     
