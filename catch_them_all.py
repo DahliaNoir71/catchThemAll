@@ -6,50 +6,85 @@ NB_PARTICIPANTS = 16
 
 
 def get_pokemons_count():
-    pokemon_count = 0
+    """
+    Fetches the total count of Pokémon from the Pokémon API.
+
+    :return: The total count of Pokémon if the request is successful; otherwise, returns 0.
+    """
     try:
         response = requests.get(URL_POKEMON_API_BASE)
         response.raise_for_status()
         data = response.json()
-        pokemon_count = data["count"]
-    except requests.RequestException as e:
-        print(f"Erreur lors de la requête pour récupération du nombre total de pokémons")
-    return pokemon_count
+        return data["count"]
+    except requests.RequestException:
+        print("Erreur lors de la requête pour récupération du nombre total de pokémons")
+        return 0
 
 
-def get_random_pokemon():
+def get_random_pokemon_id(pokemons_count):
+    """
+    :param pokemons_count: The total number of available Pokemon.
+    :return: A random Pokemon ID between 1 and the total count.
+    """
+    return random.randint(1, pokemons_count)
+
+
+def fetch_pokemon_data(pokemon_id):
+    """
+    :param pokemon_id: Identification number of the Pokémon to fetch data for
+    :return: JSON response containing Pokémon data or None if an error occurs
+    """
     try:
-        # PokeAPI contient actuellement 1010 pokémon, donc on tire un ID entre 1 et 1010
-        pokemon_id = random.randint(1, 1010)
-        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon_id}")
+        url_pokemon = f"{URL_POKEMON_API_BASE}/{pokemon_id}"
+        response = requests.get(url_pokemon)
         response.raise_for_status()
-        data = response.json()
-        return data
-    except requests.RequestException as e:
-        print(f"Erreur lors de la requête pour le pokémon avec l'ID {pokemon_id}: {e}")
+        return response.json()
+    except requests.RequestException:
+        print(f"Pas de pokémon avec l'ID : {pokemon_id}")
         return None
 
-def get_16_random_pokemons():
+
+def get_random_pokemons():
+    """
+    :return: A list of random, unique Pokémon data dictionaries. The number of Pokémon returned is determined by the constant NB_PARTICIPANTS. Each Pokémon data dictionary contains information about the Pokémon fetched using its ID.
+    """
     pokemons = []
-    while len(pokemons) < 16:
-        pokemon_data = get_random_pokemon()
-        if pokemon_data:
+    pokemons_count = get_pokemons_count()
+    while len(pokemons) < NB_PARTICIPANTS:
+        pokemon_id = get_random_pokemon_id(pokemons_count)
+        pokemon_data = fetch_pokemon_data(pokemon_id)
+        if pokemon_data and pokemon_data not in pokemons:
             pokemons.append(pokemon_data)
     return pokemons
 
+
+def print_pokemon_info(pokemon):
+    """
+    :param pokemon: A dictionary containing information about a Pokémon, including its name, type(s), height, weight, stats, and abilities.
+    :return: None
+    """
+    print(f"{pokemon['name']}")
+    print(f"   - Type(s) : {[t['type']['name'] for t in pokemon['types']]}")
+    print(f"   - Taille : {pokemon['height']}")
+    print(f"   - Poids : {pokemon['weight']}")
+    print(f"   - Statistiques :")
+    for stat in pokemon['stats']:
+        print(f"     * {stat['stat']['name']} : {stat['base_stat']}")
+    print(f"   - Capacités : {[ability['ability']['name'] for ability in pokemon['abilities']]}")
+
+
 def main():
-    print(get_pokemons_count())
-    random_pokemons = get_16_random_pokemons()
+    """
+    Retrieves a list of random Pokémon and prints their information.
+
+    :return: None
+    """
+    random_pokemons = get_random_pokemons()
     print("Les 16 Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
-        print(f"{i}. {pokemon['name']}")
-        print(f"   - Type(s) : {[t['type']['name'] for t in pokemon['types']]}")
-        print(f"   - Taille : {pokemon['height']}")
-        print(f"   - Poids : {pokemon['weight']}")
-        print(f"   - Statistiques :")
-        for stat in pokemon['stats']:
-            print(f"     * {stat['stat']['name']} : {stat['base_stat']}")
-        print(f"   - Capacités : {[ability['ability']['name'] for ability in pokemon['abilities']]}")
+        print(f"{i}. ", end="")
+        print_pokemon_info(pokemon)
+
 
 if __name__ == "__main__":
     main()
