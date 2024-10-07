@@ -5,6 +5,8 @@ URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
 NB_PARTICIPANTS = 16
 
 
+
+
 def get_pokemons_count():
     """
     Retrieves the total count of Pokémons from the Pokémon API.
