@@ -40,7 +40,7 @@ def get_pokemons_count():
         return data["count"]
     except requests.RequestException:
         print("Erreur lors de la requête pour récupération du nombre total de pokémons")
-        return 0
+        exit()
 
 def get_random_pokemon_id(pokemons_count):
     """
