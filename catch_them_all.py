@@ -7,9 +7,9 @@ NB_PARTICIPANTS = 16
 
 def get_pokemons_count():
     """
-    Fetches the total count of Pokémon from the Pokémon API.
+    Retrieves the total count of Pokémons from the Pokémon API.
 
-    :return: The total count of Pokémon if the request is successful; otherwise, returns 0.
+    :return: The total number of Pokémons as an integer. Returns 0 if the request fails.
     """
     try:
         response = requests.get(URL_POKEMON_API_BASE)
@@ -23,16 +23,16 @@ def get_pokemons_count():
 
 def get_random_pokemon_id(pokemons_count):
     """
-    :param pokemons_count: The total number of available Pokemon.
-    :return: A random Pokemon ID between 1 and the total count.
+    :param pokemons_count: The total number of available Pokémon.
+    :return: A random Pokémon ID within the range [1, pokemons_count].
     """
     return random.randint(1, pokemons_count)
 
 
 def fetch_pokemon_data(pokemon_id):
     """
-    :param pokemon_id: Identification number of the Pokémon to fetch data for
-    :return: JSON response containing Pokémon data or None if an error occurs
+    :param pokemon_id: The ID of the Pokémon to fetch data for.
+    :return: JSON data of the Pokémon if successful, otherwise None.
     """
     try:
         url_pokemon = f"{URL_POKEMON_API_BASE}/{pokemon_id}"
@@ -46,7 +46,9 @@ def fetch_pokemon_data(pokemon_id):
 
 def get_random_pokemons():
     """
-    :return: A list of random, unique Pokémon data dictionaries. The number of Pokémon returned is determined by the constant NB_PARTICIPANTS. Each Pokémon data dictionary contains information about the Pokémon fetched using its ID.
+    :return: A list of unique random Pokémon data dictionaries. The list will contain a number
+             of dictionaries equal to the value of NB_PARTICIPANTS. Each dictionary represents
+             a single Pokémon's data fetched from an external source.
     """
     pokemons = []
     pokemons_count = get_pokemons_count()
@@ -60,7 +62,10 @@ def get_random_pokemons():
 
 def print_pokemon_info(pokemon):
     """
-    :param pokemon: A dictionary containing information about a Pokémon, including its name, type(s), height, weight, stats, and abilities.
+    :param pokemon: Dictionary containing the information about a Pokémon.
+                    It should include keys such as 'name', 'types', 'height',
+                    'weight', 'stats', and 'abilities', with corresponding
+                    values describing the Pokémon's attributes.
     :return: None
     """
     print(f"{pokemon['name']}")
@@ -72,19 +77,25 @@ def print_pokemon_info(pokemon):
         print(f"     * {stat['stat']['name']} : {stat['base_stat']}")
     print(f"   - Capacités : {[ability['ability']['name'] for ability in pokemon['abilities']]}")
 
-
-def main():
+def print_pokemons_infos(random_pokemons):
     """
-    Retrieves a list of random Pokémon and prints their information.
-
+    :param random_pokemons: A list containing randomly selected Pokémon objects
     :return: None
     """
-    random_pokemons = get_random_pokemons()
-    print("Les 16 Pokémon choisis aléatoirement sont :")
+    print(f"Les {NB_PARTICIPANTS} Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
         print(f"{i}. ", end="")
         print_pokemon_info(pokemon)
 
+
+def main():
+    """
+    Main function to execute the random Pokemon selection and information display process.
+
+    :return: None
+    """
+    random_pokemons = get_random_pokemons()
+    print_pokemons_infos(random_pokemons)
 
 if __name__ == "__main__":
     main()
