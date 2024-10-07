@@ -1,6 +1,22 @@
 import requests
 import random
 
+URL_POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
+NB_PARTICIPANTS = 16
+
+
+def get_pokemons_count():
+    pokemon_count = 0
+    try:
+        response = requests.get(URL_POKEMON_API_BASE)
+        response.raise_for_status()
+        data = response.json()
+        pokemon_count = data["count"]
+    except requests.RequestException as e:
+        print(f"Erreur lors de la requête pour récupération du nombre total de pokémons")
+    return pokemon_count
+
+
 def get_random_pokemon():
     try:
         # PokeAPI contient actuellement 1010 pokémon, donc on tire un ID entre 1 et 1010
@@ -22,6 +38,7 @@ def get_16_random_pokemons():
     return pokemons
 
 def main():
+    print(get_pokemons_count())
     random_pokemons = get_16_random_pokemons()
     print("Les 16 Pokémon choisis aléatoirement sont :")
     for i, pokemon in enumerate(random_pokemons, start=1):
